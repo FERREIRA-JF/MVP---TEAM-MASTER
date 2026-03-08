@@ -1,9 +1,12 @@
 
 ```
 TeamMasterSockets
-├─ client.php
+├─ client
+│  └─ client.php
+├─ docs
+│  └─ TeamMaster_Prompt_Definitivo.md
 ├─ index.php
-├─ server.php
-└─ TeamMaster_Prompt_Definitivo.md
+└─ server
+   └─ server.php
 
 ```
