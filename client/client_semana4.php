@@ -1,5 +1,5 @@
 <?php
-$host = "192.168.56.101";
+$host = "157.173.103.201";
 $port = 8080;
 
 echo "--- SISTEMA ACUDIENTES - TEAM MASTER ---\n";
