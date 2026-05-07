@@ -1,18 +1,14 @@
 <?php
-// Archivo: shared/PagoDTO.php
-// Propósito: Objeto de Transferencia de Datos (DTO) que viajará por la red.
-
+// Data Transfer Object (DTO) para manejar los pagos de Team Master
 class PagoDTO {
-    public $id_acudiente;
+    public $idAcudiente;
     public $monto;
-    public $metodo_pago;
-    public $fecha;
+    public $concepto;
 
-    public function __construct($id, $monto, $metodo) {
-        $this->id_acudiente = $id;
+    public function __construct($idAcudiente, $monto, $concepto) {
+        $this->idAcudiente = $idAcudiente;
         $this->monto = $monto;
-        $this->metodo_pago = $metodo;
-        $this->fecha = date('Y-m-d H:i:s');
+        $this->concepto = $concepto;
     }
 }
 ?>
