@@ -23,8 +23,7 @@ class StubPago {
         $resp_lookup = trim(socket_read($r_socket, 1024));
         socket_close($r_socket);
 
-        if ($resp_lookup == "NOT_FOUND") return "[ERROR] Servicio no registrado.";
-        
+if ($resp_lookup == "NOT_FOUND|EOF") return "[ERROR] Servicio no registrado en el Registry.";        
         // Extraemos IP y Puerto dinámicos
         list($ip_real, $puerto_real) = explode('|', str_replace("|EOF", "", $resp_lookup));
 
