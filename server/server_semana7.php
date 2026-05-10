@@ -24,14 +24,14 @@ while (true) {
     $client_socket = socket_accept($socket);
     $payload = socket_read($client_socket, 1024);
     
-    // El payload ahora trae: SERIALIZADO|IP_CLIENTE|PUERTO_CLIENTE|EOF
+    // Separamos la data: el objeto, la IP de ngrok y el puerto de ngrok
     $datos = explode('|', str_replace("|EOF\n", "", $payload));
     
     $objetoRecibido = unserialize($datos[0]);
     $ip_cliente = $datos[1];
     $puerto_callback = $datos[2];
 
-    // 3. Respuesta Inmediata (Liberamos al cliente)
+    // 3. Respuesta Inmediata (Libera al cliente)
     $ack = "RECIBIDO_PROCESANDO|EOF\n";
     socket_write($client_socket, $ack, strlen($ack));
     socket_close($client_socket);
@@ -41,7 +41,7 @@ while (true) {
     // 4. Simulamos procesamiento bancario pesado
     sleep(3); 
     
-    // 5. REMOTE CALLBACK (El Servidor llama al Cliente)
+    // 5. REMOTE CALLBACK (El Servidor llama al Cliente a través de Ngrok)
     echo "[!] Notificando resultado al cliente en $ip_cliente:$puerto_callback...\n";
     $callback_socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
     if (@socket_connect($callback_socket, $ip_cliente, $puerto_callback)) {
