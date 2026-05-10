@@ -38,4 +38,3 @@
             <soap:address location="http://157.173.103.201:8080/server/server_semana9.php"/>
         </port>
     </service>
-</definitions>
