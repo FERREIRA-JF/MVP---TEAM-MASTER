@@ -1,55 +1,56 @@
 <?php
 require_once __DIR__ . '/../shared/PagoDTO.php';
 
-$nombreServicio = "ServicioPagosAsincrono";
-$ipServidor = "157.173.103.201"; 
-$puertoServidor = 8080;
+echo "--- SISTEMA ACUDIENTES - MODO ASINCRONO CON NGROK ---\n";
 
-// 1. Registro en el Registry
-$registry_socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-if (@socket_connect($registry_socket, "127.0.0.1", 8081)) {
-    $trama = "BIND|$nombreServicio|$ipServidor|$puertoServidor|EOF\n";
-    socket_write($registry_socket, $trama, strlen($trama));
-    socket_close($registry_socket);
-}
+$miPago = new PagoDTO("ACU_002", 85000, "DOTACION_DEPORTIVA");
 
-// 2. Escucha del Servidor
+$ip_registry = "157.173.103.201"; 
+
+// 1. LOOKUP: Preguntamos al registry la IP del servidor
+$r_socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+@socket_connect($r_socket, $ip_registry, 8081);
+socket_write($r_socket, "LOOKUP|ServicioPagosAsincrono|EOF\n");
+$resp_lookup = trim(socket_read($r_socket, 1024));
+socket_close($r_socket);
+
+list($ip_real, $puerto_real) = explode('|', str_replace("|EOF", "", $resp_lookup));
+
+// --- MODIFICACIÓN NGROK ---
+// Escribe aquí lo que te da la terminal de ngrok (cambia estos valores por los tuyos)
+$ngrok_host = "0.tcp.sa.ngrok.io"; 
+$ngrok_port = 14567;               
+
+// Traducimos el dominio de ngrok a IP numérica para el servidor de Ubuntu
+$ip_publica_ngrok = gethostbyname($ngrok_host);
+// --------------------------
+
+// 2. ENVIAR EL PAGO
 $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-socket_bind($socket, "0.0.0.0", $puertoServidor);
-socket_listen($socket, 5);
+socket_connect($socket, $ip_real, $puerto_real);
 
-echo "=== SERVIDOR ASINCRONO EN ESCUCHA ===\n";
+// Le decimos al servidor: "Este es el pago. Llámame a ngrok cuando termines"
+$payload = serialize($miPago) . "|$ip_publica_ngrok|$ngrok_port|EOF\n";
+socket_write($socket, $payload, strlen($payload));
 
-while (true) {
-    $client_socket = socket_accept($socket);
-    $payload = socket_read($client_socket, 1024);
-    
-    // Separamos la data: el objeto, la IP de ngrok y el puerto de ngrok
-    $datos = explode('|', str_replace("|EOF\n", "", $payload));
-    
-    $objetoRecibido = unserialize($datos[0]);
-    $ip_cliente = $datos[1];
-    $puerto_callback = $datos[2];
+// Recibimos el "RECIBIDO_PROCESANDO"
+$ack = socket_read($socket, 1024);
+socket_close($socket);
 
-    // 3. Respuesta Inmediata (Libera al cliente)
-    $ack = "RECIBIDO_PROCESANDO|EOF\n";
-    socket_write($client_socket, $ack, strlen($ack));
-    socket_close($client_socket);
+echo "[1] Respuesta del Servidor: " . trim($ack) . "\n";
+echo "[2] Abriendo puerto local 8082 para esperar notificacion a traves de ngrok...\n";
 
-    echo "[+] Pago de $" . $objetoRecibido->monto . " recibido. Procesando...\n";
-    
-    // 4. Simulamos procesamiento bancario pesado
-    sleep(3); 
-    
-    // 5. REMOTE CALLBACK (El Servidor llama al Cliente a través de Ngrok)
-    echo "[!] Notificando resultado al cliente en $ip_cliente:$puerto_callback...\n";
-    $callback_socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-    if (@socket_connect($callback_socket, $ip_cliente, $puerto_callback)) {
-        $notificacion = "NOTIFICACION|Pago Aprobado exitosamente para " . $objetoRecibido->idAcudiente . "|EOF\n";
-        socket_write($callback_socket, $notificacion, strlen($notificacion));
-        socket_close($callback_socket);
-        echo "    -> Notificación enviada.\n";
-    } else {
-        echo "    -> [ERROR] No se pudo contactar al cliente.\n";
-    }
+// 3. ESPERAR EL CALLBACK
+// El cliente escucha localmente en el 8082. Ngrok toma lo de internet y lo empuja aquí.
+$listen_socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+@socket_bind($listen_socket, "0.0.0.0", 8082); 
+@socket_listen($listen_socket, 1);
+
+$server_connection = @socket_accept($listen_socket);
+if ($server_connection) {
+    $notificacion = socket_read($server_connection, 1024);
+    echo "\n[!!!] CALLBACK RECIBIDO DEL SERVIDOR: \n" . trim($notificacion) . "\n";
+    socket_close($server_connection);
 }
+socket_close($listen_socket);
+?>
