@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="MensajeTeamMaster">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="cabecera">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="operacion" type="xs:string"/>
+              <xs:element name="timestamp" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="cuerpo">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="id_acudiente" type="xs:string"/>
+              <xs:element name="monto" type="xs:decimal"/>
+              <xs:element name="concepto" type="xs:string"/>
+              <xs:element name="callback_ip" type="xs:string" minOccurs="0"/>
+              <xs:element name="callback_port" type="xs:integer" minOccurs="0"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
