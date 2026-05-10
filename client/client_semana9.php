@@ -15,7 +15,7 @@ try {
     // Invocación del método remoto como si fuera local (Transparencia total)
     $params = [
         'idAcudiente' => 'ACU_009',
-        'monto' => -100,
+        'monto' => 50000,
         'concepto' => 'MENSUALIDAD_JULIO'
     ];
 
