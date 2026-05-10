@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="TeamMasterService"
+             targetNamespace="http://teammaster.online/soap"
+             xmlns:tns="http://teammaster.online/soap"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+    <message name="ProcesarPagoRequest">
+        <part name="idAcudiente" type="xsd:string"/>
+        <part name="monto" type="xsd:float"/>
+        <part name="concepto" type="xsd:string"/>
+    </message>
+
+    <message name="ProcesarPagoResponse">
+        <part name="estado" type="xsd:string"/>
+        <part name="comprobante" type="xsd:string"/>
+    </message>
+
+    <portType name="TeamMasterPortType">
+        <operation name="procesarPago">
+            <input message="tns:ProcesarPagoRequest"/>
+            <output message="tns:ProcesarPagoResponse"/>
+        </operation>
+    </portType>
+
+    <binding name="TeamMasterBinding" type="tns:TeamMasterPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="procesarPago">
+            <soap:operation soapAction="urn:procesarPago"/>
+            <input><soap:body use="encoded" namespace="urn:teammaster" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+            <output><soap:body use="encoded" namespace="urn:teammaster" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+        </operation>
+    </binding>
+
+    <service name="TeamMasterService">
+        <port name="TeamMasterPort" binding="tns:TeamMasterBinding">
+            <soap:address location="http://157.173.103.201:8080/server_semana9.php"/>
+        </port>
+    </service>
+</definitions>
