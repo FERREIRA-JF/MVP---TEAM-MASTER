@@ -1,28 +1,30 @@
 <?php
-echo "--- CLIENTE TEAM MASTER - PROTOCOLO SOAP (WSDL/UDDI) ---\n";
+ini_set("display_errors", 0);
+ini_set("soap.wsdl_cache_enabled", 0); // Destruye el caché en Ubuntu
 
-// Actividad 3: Endpoint dinámico (Simulación UDDI)
-$wsdl_url = "http://157.173.103.201/shared/teammaster.wsdl";
-try {
-    // El cliente descarga el WSDL y "aprende" cómo hablar con el servidor
-    $cliente = new SoapClient($wsdl_url, [
-        'trace' => 1,
-        'cache_wsdl' => WSDL_CACHE_NONE
-    ]);
-
-    echo "[1] Consultando capacidades del servicio vía WSDL...\n";
-    
-    // Invocación del método remoto como si fuera local (Transparencia total)
-    $params = [
-        'idAcudiente' => 'ACU_009',
-        'monto' => 50000,
-        'concepto' => 'MENSUALIDAD_JULIO'
-    ];
-
-    echo "[2] Enviando petición SOAP...\n";
-    $respuesta = $cliente->procesarPago($params['idAcudiente'], $params['monto'], $params['concepto']);
-
-echo "[RESULTADO] Estado: " . $respuesta['estado'] . " | Recibo: " . $respuesta['comprobante'] . "\n";
-} catch (SoapFault $e) {
-    echo "[SOAP FAULT] Error del servidor: " . $e->getMessage() . "\n";
+class TeamMasterAPI {
+    public function procesarPago($idAcudiente, $monto, $concepto) {
+        if ($monto <= 0) {
+            throw new SoapFault("Client", "El monto debe ser superior a cero.");
+        }
+        
+        // Log interno del servidor
+        error_log("[SOAP] Pago exitoso en produccion: $idAcudiente por $$monto");
+        
+        return [
+            "estado" => "APROBADO",
+            "comprobante" => "REC-" . time()
+        ];
+    }
 }
+
+// Si alguien entra por el navegador web (GET), le mostramos un mensaje en vez de un error
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    echo "Servidor SOAP Operativo. Esperando peticiones POST del cliente Team Master.";
+    exit;
+}
+
+$options = ['uri' => 'http://teammaster.online/soap'];
+$server = new SoapServer(__DIR__ . '/../shared/teammaster.wsdl', $options);
+$server->setClass('TeamMasterAPI');
+$server->handle();
