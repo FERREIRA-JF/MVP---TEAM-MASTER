@@ -22,8 +22,7 @@ try {
     echo "[2] Enviando petición SOAP...\n";
     $respuesta = $cliente->procesarPago($params['idAcudiente'], $params['monto'], $params['concepto']);
 
-    echo "[RESULTADO] Estado: " . $respuesta->estado . " | Recibo: " . $respuesta->comprobante . "\n";
-
+echo "[RESULTADO] Estado: " . $respuesta['estado'] . " | Recibo: " . $respuesta['comprobante'] . "\n";
 } catch (SoapFault $e) {
     echo "[SOAP FAULT] Error del servidor: " . $e->getMessage() . "\n";
 }
