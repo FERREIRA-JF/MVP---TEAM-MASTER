@@ -2,8 +2,7 @@
 echo "--- CLIENTE TEAM MASTER - PROTOCOLO SOAP (WSDL/UDDI) ---\n";
 
 // Actividad 3: Endpoint dinámico (Simulación UDDI)
-$wsdl_url = "http://157.173.103.201/shared/teammaster.wsdl";
-
+$wsdl_url = "http://157.173.103.201:8080/shared/teammaster.wsdl";
 try {
     // El cliente descarga el WSDL y "aprende" cómo hablar con el servidor
     $cliente = new SoapClient($wsdl_url, [
@@ -16,7 +15,7 @@ try {
     // Invocación del método remoto como si fuera local (Transparencia total)
     $params = [
         'idAcudiente' => 'ACU_009',
-        'monto' => 175000.0,
+        'monto' => -100,
         'concepto' => 'MENSUALIDAD_JULIO'
     ];
 
