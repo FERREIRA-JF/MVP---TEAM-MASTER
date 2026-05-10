@@ -7,7 +7,8 @@ class TeamMasterAPI {
             throw new SoapFault("Client", "El monto debe ser superior a cero.");
         }
         
-        echo "[SOAP] Procesando pago de $idAcudiente por $$monto ($concepto)\n";
+        // Usamos error_log para imprimir en la terminal del VPS, NO echo
+        error_log("[SOAP] Procesando pago de $idAcudiente por $$monto ($concepto)");
         
         return [
             "estado" => "APROBADO",
@@ -16,12 +17,13 @@ class TeamMasterAPI {
     }
 }
 
+// Ocultamos advertencias de PHP para no ensuciar el XML
+ini_set("display_errors", 0);
+
 // Configuración del Servidor SOAP
 $options = ['uri' => 'http://teammaster.online/soap'];
 $server = new SoapServer(__DIR__ . '/../shared/teammaster.wsdl', $options);
 $server->setClass('TeamMasterAPI');
 
-echo "=== SERVIDOR SOAP TEAM MASTER INICIADO ===\n";
-// En un entorno real, esto corre sobre Apache/Nginx. 
-// Para la práctica de sockets, el servidor procesará la petición POST.
+error_log("=== SERVIDOR SOAP TEAM MASTER ESCUCHANDO EN HTTP ===");
 $server->handle();
