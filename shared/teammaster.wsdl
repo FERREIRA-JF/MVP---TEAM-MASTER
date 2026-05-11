@@ -35,7 +35,7 @@
 
     <service name="TeamMasterService">
         <port name="TeamMasterPort" binding="tns:TeamMasterBinding">
-            <soap:address location="http://157.173.103.201/server/server_semana9.php"/>
+            <soap:address location="http://157.173.103.201/server/server9web.php"/>
         </port>
     </service>
 </definitions>
