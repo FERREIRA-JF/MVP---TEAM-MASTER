@@ -1,0 +1,23 @@
+-- 1. Crear la base de datos
+CREATE DATABASE teammaster_db;
+
+-- 2. Crear un usuario específico para tu app (NUNCA usar root en PHP)
+CREATE USER 'teammaster_user'@'localhost' IDENTIFIED BY 'TeamMaster2026!';
+GRANT ALL PRIVILEGES ON teammaster_db.* TO 'teammaster_user'@'localhost';
+FLUSH PRIVILEGES;
+
+-- 3. Seleccionar la base de datos y crear la tabla
+USE teammaster_db;
+
+CREATE TABLE pagos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_acudiente VARCHAR(50) NOT NULL,
+    monto DECIMAL(10,2) NOT NULL,
+    concepto VARCHAR(100) NOT NULL,
+    estado VARCHAR(20) NOT NULL,
+    comprobante VARCHAR(50) NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Salir de la base de datos
+exit;
